@@ -398,7 +398,7 @@ extension Round {
                 continue
             }
             
-            if !await WordDictionary.shared.isValid(wordString) {
+            if await !WordDictionary.shared.isValid(wordString) {
                 throw WordsModelError.wordNotInDictionary
             }
         }
