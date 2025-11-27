@@ -2,7 +2,7 @@ import Foundation
 
 public typealias TileID = Int
 
-public struct Tile: Equatable, Codable, Identifiable {
+public struct Tile: Hashable, Codable, Identifiable {
     public let id: TileID
     public let letter: Letter
     public let pointValue: Int
