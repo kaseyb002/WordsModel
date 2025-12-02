@@ -534,8 +534,22 @@ extension Round {
     }
     
     private func wordString(from placements: [WordPlacement]) throws -> String {
+        // Sort placements by position to ensure correct word order
+        // Determine if word is horizontal or vertical
+        let isHorizontal = placements.count > 1 && 
+            placements.allSatisfy { $0.position.row == placements.first?.position.row }
+        
+        let sortedPlacements: [WordPlacement]
+        if isHorizontal {
+            // Sort left-to-right (by column)
+            sortedPlacements = placements.sorted { $0.position.column < $1.position.column }
+        } else {
+            // Sort top-to-bottom (by row)
+            sortedPlacements = placements.sorted { $0.position.row < $1.position.row }
+        }
+        
         var wordString = ""
-        for placement in placements {
+        for placement in sortedPlacements {
             guard let tile = tilesMap[placement.tileID] else {
                 throw WordsModelError.tileDoesNotExistInPlayersRack
             }
