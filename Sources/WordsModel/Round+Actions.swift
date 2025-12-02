@@ -393,9 +393,9 @@ extension Round {
         for wordPlacements in wordPlacementArrays {
             let wordString = try wordString(from: wordPlacements)
             
-            // Skip single-letter "words" (they're allowed)
+            // Reject single-letter words (not allowed in Scrabble)
             if wordString.count <= 1 {
-                continue
+                throw WordsModelError.invalidWordPlacement
             }
             
             if await !WordDictionary.shared.isValid(wordString) {
