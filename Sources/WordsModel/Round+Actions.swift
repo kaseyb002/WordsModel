@@ -407,12 +407,29 @@ extension Round {
     private func getAllWordsThatWillBeFormed(placements: [WordPlacement]) throws -> [[WordPlacement]] {
         var words: [[WordPlacement]] = []
         
-        // Main word (the placements themselves)
-        words.append(placements)
-        
         // Determine main word direction
         let isMainWordHorizontal = placements.count > 1 &&
             placements.allSatisfy { $0.position.row == placements.first?.position.row }
+        
+        // Build the complete main word including existing tiles on the board
+        // Use the first placement as the anchor point
+        if let firstPlacement = placements.first {
+            let mainWordDirection = isMainWordHorizontal
+            if let mainWord = try getWordAtPositionIncludingPlacements(
+                row: firstPlacement.position.row,
+                column: firstPlacement.position.column,
+                isHorizontal: mainWordDirection,
+                newPlacements: placements
+            ) {
+                words.append(mainWord)
+            } else {
+                // Fallback: if no complete word found, just use placements (shouldn't happen in valid play)
+                words.append(placements)
+            }
+        } else {
+            // Fallback: empty placements (shouldn't happen)
+            words.append(placements)
+        }
         
         // Check for perpendicular words (words formed by connecting to existing tiles)
         for placement in placements {
