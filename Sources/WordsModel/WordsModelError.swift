@@ -5,22 +5,24 @@ public enum WordsModelError: Error, Equatable {
     case tooManyPlayers
     case notWaitingForPlayerToAct
     case playerNotFound
-    case tileDoesNotExistInPlayersRack
     case tileBagIsEmpty
-    case invalidWordPlacement
-    case wordDoesNotConnectToExistingTiles
-    case firstWordMustUseCenterSquare
     case invalidPosition
     case positionAlreadyOccupied
-    case wordNotInDictionary(word: String)
-    case invalidWordFormation
     case gameIsComplete
     case insufficientTilesToExchange
     case cannotPassOnFirstTurn
-    case blankTileRequiresLetter
-    case nonBlankTileCannotHaveLetter
-    case tilesNotPlacedInAStraightLine
-    case tilesNotPlacedConsecutively
-    case noTilePlacementsFound
 }
 
+public enum WordPlacementError: Error, Equatable {
+    case wordDoesNotConnectToExistingTiles
+    case tilesNotPlacedInAStraightLine
+    case tilesNotPlacedConsecutively
+    case invalidWordPlacement
+    case invalidWordFormation
+    case wordNotInDictionary(word: String)
+    case noTilePlacementsFound
+    case blankTileRequiresLetter
+    case nonBlankTileCannotHaveLetter
+    case firstWordMustUseCenterSquare
+    case tileDoesNotExistInPlayersRack
+}

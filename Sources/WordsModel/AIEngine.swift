@@ -304,7 +304,7 @@ public struct AIEngine {
         var wordString = ""
         for placement in placements {
             guard let tile = round.tilesMap[placement.tileID] else {
-                throw WordsModelError.tileDoesNotExistInPlayersRack
+                throw WordPlacementError.tileDoesNotExistInPlayersRack
             }
             
             let letter: Tile.Letter

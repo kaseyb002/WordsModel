@@ -27,7 +27,7 @@ extension Round {
             
             // Remove tile from player's rack
             guard let tileIndex = playerRacks[currentPlayerIndex].tiles.firstIndex(of: placement.tileID) else {
-                throw WordsModelError.tileDoesNotExistInPlayersRack
+                throw WordPlacementError.tileDoesNotExistInPlayersRack
             }
             playerRacks[currentPlayerIndex].tiles.remove(at: tileIndex)
         }
@@ -73,12 +73,12 @@ extension Round {
             // First word must use center square
             let centerPosition = BoardPosition(row: 7, column: 7)
             guard form.placements.contains(where: { $0.position == centerPosition }) else {
-                throw WordsModelError.firstWordMustUseCenterSquare
+                throw WordPlacementError.firstWordMustUseCenterSquare
             }
         } else {
             // Word must connect to existing tiles
             guard wordConnectsToExistingTiles(placements: form.placements) else {
-                throw WordsModelError.wordDoesNotConnectToExistingTiles
+                throw WordPlacementError.wordDoesNotConnectToExistingTiles
             }
         }
         
@@ -138,7 +138,7 @@ extension Round {
         // Check if player has all tiles
         for tileID in tileIDs {
             guard playerRacks[currentPlayerIndex].tiles.contains(tileID) else {
-                throw WordsModelError.tileDoesNotExistInPlayersRack
+                throw WordPlacementError.tileDoesNotExistInPlayersRack
             }
         }
         
@@ -182,19 +182,19 @@ extension Round {
         currentPlayerIndex: Int
     ) throws {
         guard !placements.isEmpty else {
-            throw WordsModelError.noTilePlacementsFound
+            throw WordPlacementError.noTilePlacementsFound
         }
         
         // Check all tiles are in player's rack
         let playerTileIDs: Set<TileID> = Set(playerRacks[currentPlayerIndex].tiles)
         for placement in placements {
             guard playerTileIDs.contains(placement.tileID) else {
-                throw WordsModelError.tileDoesNotExistInPlayersRack
+                throw WordPlacementError.tileDoesNotExistInPlayersRack
             }
             
             // Validate blank tile letter assignment
             guard let tile: Tile = tilesMap[placement.tileID] else {
-                throw WordsModelError.tileDoesNotExistInPlayersRack
+                throw WordPlacementError.tileDoesNotExistInPlayersRack
             }
             
             if tile.letter == .blank {
@@ -202,12 +202,12 @@ extension Round {
                 guard let assignedLetter = placement.blankLetterUsedAs,
                       assignedLetter != .blank
                 else {
-                    throw WordsModelError.blankTileRequiresLetter
+                    throw WordPlacementError.blankTileRequiresLetter
                 }
             } else {
                 // Non-blank tiles should NOT have a letter specified
                 if placement.blankLetterUsedAs != nil {
-                    throw WordsModelError.nonBlankTileCannotHaveLetter
+                    throw WordPlacementError.nonBlankTileCannotHaveLetter
                 }
             }
             
@@ -240,7 +240,7 @@ extension Round {
         let isVertical = sortedByCol.allSatisfy { $0.position.column == sortedByCol.first?.position.column }
         
         guard isHorizontal || isVertical else {
-            throw WordsModelError.tilesNotPlacedInAStraightLine
+            throw WordPlacementError.tilesNotPlacedInAStraightLine
         }
         
         // Check if consecutive
@@ -248,14 +248,14 @@ extension Round {
             let columns: [Int] = sortedByRow.map { $0.position.column }.sorted()
             for i in 1..<columns.count {
                 guard columns[i] == columns[i-1] + 1 else {
-                    throw WordsModelError.tilesNotPlacedConsecutively
+                    throw WordPlacementError.tilesNotPlacedConsecutively
                 }
             }
         } else {
             let rows: [Int] = sortedByCol.map { $0.position.row }.sorted()
             for i in 1..<rows.count {
                 guard rows[i] == rows[i-1] + 1 else {
-                    throw WordsModelError.tilesNotPlacedConsecutively
+                    throw WordPlacementError.tilesNotPlacedConsecutively
                 }
             }
         }
@@ -295,7 +295,7 @@ extension Round {
             
             for placement in word {
                 guard let tile = tilesMap[placement.tileID] else {
-                    throw WordsModelError.tileDoesNotExistInPlayersRack
+                    throw WordPlacementError.tileDoesNotExistInPlayersRack
                 }
                 
                 let square = boardSquares[placement.position.row][placement.position.column]
@@ -422,11 +422,11 @@ extension Round {
             
             // Reject single-letter words (not allowed in Scrabble)
             if wordString.count <= 1 {
-                throw WordsModelError.invalidWordPlacement
+                throw WordPlacementError.invalidWordPlacement
             }
             
             if await !WordDictionary.shared.isValid(wordString) {
-                throw WordsModelError.wordNotInDictionary(word: wordString)
+                throw WordPlacementError.wordNotInDictionary(word: wordString)
             }
         }
     }
@@ -595,7 +595,7 @@ extension Round {
         var wordString = ""
         for placement in sortedPlacements {
             guard let tile = tilesMap[placement.tileID] else {
-                throw WordsModelError.tileDoesNotExistInPlayersRack
+                throw WordPlacementError.tileDoesNotExistInPlayersRack
             }
             
             // Use assigned letter for blanks, otherwise use tile's letter
