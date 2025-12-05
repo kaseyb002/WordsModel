@@ -64,32 +64,12 @@ extension Round {
             throw WordsModelError.playerNotFound
         }
         
-        // Validate placements
-        try validatePlacements(form.placements, currentPlayerIndex: currentPlayerIndex)
+        try validateTilePlacements(form.placements, currentPlayerIndex: currentPlayerIndex)
         
-        // Check if this is the first word (board is empty)
-        let isFirstWord = board.allSatisfy { $0.allSatisfy { $0 == nil } }
-        if isFirstWord {
-            // First word must use center square
-            let centerPosition = BoardPosition(row: 7, column: 7)
-            guard form.placements.contains(where: { $0.position == centerPosition }) else {
-                throw WordPlacementError.firstWordMustUseCenterSquare
-            }
-        } else {
-            // Word must connect to existing tiles
-            guard wordConnectsToExistingTiles(placements: form.placements) else {
-                throw WordPlacementError.wordDoesNotConnectToExistingTiles
-            }
-        }
-        
-        // Validate all words against dictionary (before placing tiles)
         try await validateWordsAgainstDictionary(placements: form.placements)
         
-        // Calculate score
-        let score: Int = try calculateScore(
-            placements: form.placements,
-            isFirstWord: isFirstWord
-        )
+        let score: Int = try calculateScore(placements: form.placements)
+        
         return WordPlacementResult(
             tilePlacements: form.placements,
             points: score
@@ -177,7 +157,7 @@ extension Round {
     
     // MARK: - Private Helper Methods
     
-    private func validatePlacements(
+    private func validateTilePlacements(
         _ placements: [TilePlacement],
         currentPlayerIndex: Int
     ) throws {
@@ -185,46 +165,41 @@ extension Round {
             throw WordPlacementError.noTilePlacementsFound
         }
         
-        // Check all tiles are in player's rack
         let playerTileIDs: Set<TileID> = Set(playerRacks[currentPlayerIndex].tiles)
         for placement in placements {
             guard playerTileIDs.contains(placement.tileID) else {
                 throw WordPlacementError.tileDoesNotExistInPlayersRack
             }
             
-            // Validate blank tile letter assignment
             guard let tile: Tile = tilesMap[placement.tileID] else {
-                throw WordPlacementError.tileDoesNotExistInPlayersRack
+                throw WordPlacementError.tileDoesNotExistInTilesMap
             }
             
-            if tile.letter == .blank {
-                // Blank tiles MUST have a letter specified
-                guard let assignedLetter = placement.blankLetterUsedAs,
+            switch tile.letter {
+            case .blank:
+                guard let assignedLetter: Tile.Letter = placement.blankLetterUsedAs,
                       assignedLetter != .blank
                 else {
                     throw WordPlacementError.blankTileRequiresLetter
                 }
-            } else {
-                // Non-blank tiles should NOT have a letter specified
-                if placement.blankLetterUsedAs != nil {
+                
+            default:
+                guard placement.blankLetterUsedAs == nil else {
                     throw WordPlacementError.nonBlankTileCannotHaveLetter
                 }
             }
             
-            // Validate position
             guard placement.position.row >= 0 && placement.position.row < rows,
                   placement.position.column >= 0 && placement.position.column < columns
             else {
                 throw WordsModelError.invalidPosition
             }
             
-            // Check position is not already occupied
             guard board[placement.position.row][placement.position.column] == nil else {
                 throw WordsModelError.positionAlreadyOccupied
             }
         }
         
-        // Validate word formation (all tiles must be in a line)
         try validateWordFormation(placements: placements)
     }
     
@@ -236,8 +211,8 @@ extension Round {
         let sortedByCol: [TilePlacement] = placements.sorted { $0.position.column < $1.position.column || ($0.position.column == $1.position.column && $0.position.row < $1.position.row) }
         
         // Check if horizontal
-        let isHorizontal = sortedByRow.allSatisfy { $0.position.row == sortedByRow.first?.position.row }
-        let isVertical = sortedByCol.allSatisfy { $0.position.column == sortedByCol.first?.position.column }
+        let isHorizontal: Bool = sortedByRow.allSatisfy { $0.position.row == sortedByRow.first?.position.row }
+        let isVertical: Bool = sortedByCol.allSatisfy { $0.position.column == sortedByCol.first?.position.column }
         
         guard isHorizontal || isVertical else {
             throw WordPlacementError.tilesNotPlacedInAStraightLine
@@ -259,22 +234,37 @@ extension Round {
                 }
             }
         }
+        
+        let isFirstWord: Bool = board.allSatisfy { $0.allSatisfy { $0 == nil } }
+        if isFirstWord {
+            let centerPosition: BoardPosition = .init(
+                row: 7,
+                column: 7
+            )
+            guard placements.contains(where: { $0.position == centerPosition }) else {
+                throw WordPlacementError.firstWordMustUseCenterSquare
+            }
+        } else {
+            guard wordConnectsToExistingTiles(placements: placements) else {
+                throw WordPlacementError.wordDoesNotConnectToExistingTiles
+            }
+        }
     }
     
     private func wordConnectsToExistingTiles(placements: [TilePlacement]) -> Bool {
         for placement in placements {
-            let row = placement.position.row
-            let col = placement.position.column
+            let row: Int = placement.position.row
+            let col: Int = placement.position.column
             
             // Check adjacent positions
-            let adjacentPositions = [
+            let adjacentPositions: [(Int, Int)] = [
                 (row - 1, col), (row + 1, col),
                 (row, col - 1), (row, col + 1)
             ]
             
-            for (adjRow, adjCol) in adjacentPositions {
-                if adjRow >= 0 && adjRow < rows && adjCol >= 0 && adjCol < columns {
-                    if board[adjRow][adjCol] != nil {
+            for (adjacentRow, adjacentCol) in adjacentPositions {
+                if adjacentRow >= 0 && adjacentRow < rows && adjacentCol >= 0 && adjacentCol < columns {
+                    if board[adjacentRow][adjacentCol] != nil {
                         return true
                     }
                 }
@@ -283,7 +273,7 @@ extension Round {
         return false
     }
     
-    private func calculateScore(placements: [TilePlacement], isFirstWord: Bool) throws -> Int {
+    private func calculateScore(placements: [TilePlacement]) throws -> Int {
         var totalScore = 0
         
         // Get all words formed (main word + any perpendicular words)
@@ -413,8 +403,7 @@ extension Round {
     }
     
     private func validateWordsAgainstDictionary(placements: [TilePlacement]) async throws {
-        // Get all words that will be formed (including perpendicular words with existing tiles)
-        let letterPlacementArrays = try getAllWordsThatWillBeFormed(placements: placements)
+        let letterPlacementArrays: [[TilePlacement]] = try getAllWordsThatWillBeFormed(placements: placements)
         
         // Convert each word placement array to a word string and validate
         for letterPlacements in letterPlacementArrays {
@@ -431,67 +420,135 @@ extension Round {
         }
     }
     
+    /// Get all words that will be formed (including perpendicular words with existing tiles)
+    /// Searches left/right and up/down from each placement until hitting empty spaces
     private func getAllWordsThatWillBeFormed(placements: [TilePlacement]) throws -> [[TilePlacement]] {
         var words: [[TilePlacement]] = []
+        var visitedWordPositions: Set<Set<BoardPosition>> = []
         
-        // Determine main word direction
-        let isMainWordHorizontal = placements.count > 1 &&
-            placements.allSatisfy { $0.position.row == placements.first?.position.row }
+        // Create a map of positions to tile placements for quick lookup
+        var positionToPlacement: [BoardPosition: TilePlacement] = [:]
         
-        // Build the complete main word including existing tiles on the board
-        // Use the first placement as the anchor point
-        if let firstPlacement = placements.first {
-            let mainWordDirection = isMainWordHorizontal
-            if let mainWord = try getWordAtPositionIncludingPlacements(
-                row: firstPlacement.position.row,
-                column: firstPlacement.position.column,
-                isHorizontal: mainWordDirection,
-                newPlacements: placements
-            ) {
-                words.append(mainWord)
-            } else {
-                // Fallback: if no complete word found, just use placements (shouldn't happen in valid play)
-                words.append(placements)
-            }
-        } else {
-            // Fallback: empty placements (shouldn't happen)
-            words.append(placements)
+        // Add new placements to the map
+        for placement in placements {
+            positionToPlacement[placement.position] = placement
         }
         
-        // Check for perpendicular words (words formed by connecting to existing tiles)
-        for placement in placements {
-            let row = placement.position.row
-            let col = placement.position.column
-            
-            // Check perpendicular direction only
-            if isMainWordHorizontal {
-                // Main word is horizontal, check for vertical words
-                if let verticalWord = try getWordAtPositionIncludingPlacements(
-                    row: row,
-                    column: col,
-                    isHorizontal: false,
-                    newPlacements: placements
-                ) {
-                    if !words.contains(where: { Set($0.map { $0.position }) == Set(verticalWord.map { $0.position }) }) {
-                        words.append(verticalWord)
+        // Add existing board tiles to the map
+        for row in 0..<rows {
+            for col in 0..<columns {
+                if let tileID = board[row][col] {
+                    let position = BoardPosition(row: row, column: col)
+                    // Only add if not already in new placements
+                    if positionToPlacement[position] == nil {
+                        positionToPlacement[position] = TilePlacement(
+                            tileID: tileID,
+                            position: position,
+                            blankLetterUsedAs: blankTileAssignments[tileID]
+                        )
                     }
                 }
-            } else {
-                // Main word is vertical, check for horizontal words
-                if let horizontalWord = try getWordAtPositionIncludingPlacements(
-                    row: row,
-                    column: col,
-                    isHorizontal: true,
-                    newPlacements: placements
-                ) {
-                    if !words.contains(where: { Set($0.map { $0.position }) == Set(horizontalWord.map { $0.position }) }) {
-                        words.append(horizontalWord)
-                    }
+            }
+        }
+        
+        // For each new placement, check horizontal and vertical words
+        for placement in placements {
+            let startRow = placement.position.row
+            let startCol = placement.position.column
+            
+            // Build horizontal word (search left, then right)
+            if let horizontalWord = try buildWordInDirection(
+                startRow: startRow,
+                startCol: startCol,
+                isHorizontal: true,
+                positionToPlacement: positionToPlacement
+            ) {
+                let wordPositions = Set(horizontalWord.map { $0.position })
+                if !visitedWordPositions.contains(wordPositions) && horizontalWord.count > 1 {
+                    words.append(horizontalWord)
+                    visitedWordPositions.insert(wordPositions)
+                }
+            }
+            
+            // Build vertical word (search up, then down)
+            if let verticalWord = try buildWordInDirection(
+                startRow: startRow,
+                startCol: startCol,
+                isHorizontal: false,
+                positionToPlacement: positionToPlacement
+            ) {
+                let wordPositions = Set(verticalWord.map { $0.position })
+                if !visitedWordPositions.contains(wordPositions) && verticalWord.count > 1 {
+                    words.append(verticalWord)
+                    visitedWordPositions.insert(wordPositions)
                 }
             }
         }
         
         return words
+    }
+    
+    /// Builds a word by searching in one direction until hitting empty spaces
+    /// For horizontal: searches left then right
+    /// For vertical: searches up then down
+    private func buildWordInDirection(
+        startRow: Int,
+        startCol: Int,
+        isHorizontal: Bool,
+        positionToPlacement: [BoardPosition: TilePlacement]
+    ) throws -> [TilePlacement]? {
+        var word: [TilePlacement] = []
+        
+        if isHorizontal {
+            // Search left until we hit an empty space
+            var leftmostCol = startCol
+            while leftmostCol > 0 {
+                let pos = BoardPosition(row: startRow, column: leftmostCol - 1)
+                if positionToPlacement[pos] != nil {
+                    leftmostCol -= 1
+                } else {
+                    break
+                }
+            }
+            
+            // Build word from left to right until we hit an empty space
+            var currentCol = leftmostCol
+            while currentCol < columns {
+                let pos = BoardPosition(row: startRow, column: currentCol)
+                if let placement = positionToPlacement[pos] {
+                    word.append(placement)
+                    currentCol += 1
+                } else {
+                    break
+                }
+            }
+        } else {
+            // Search up until we hit an empty space
+            var topmostRow = startRow
+            while topmostRow > 0 {
+                let pos = BoardPosition(row: topmostRow - 1, column: startCol)
+                if positionToPlacement[pos] != nil {
+                    topmostRow -= 1
+                } else {
+                    break
+                }
+            }
+            
+            // Build word from top to bottom until we hit an empty space
+            var currentRow = topmostRow
+            while currentRow < rows {
+                let pos = BoardPosition(row: currentRow, column: startCol)
+                if let placement = positionToPlacement[pos] {
+                    word.append(placement)
+                    currentRow += 1
+                } else {
+                    break
+                }
+            }
+        }
+        
+        // Return word only if it has more than one tile
+        return word.count > 1 ? word : nil
     }
     
     private func getWordAtPositionIncludingPlacements(

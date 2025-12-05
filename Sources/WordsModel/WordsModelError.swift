@@ -25,4 +25,5 @@ public enum WordPlacementError: Error, Equatable {
     case nonBlankTileCannotHaveLetter
     case firstWordMustUseCenterSquare
     case tileDoesNotExistInPlayersRack
+    case tileDoesNotExistInTilesMap
 }
