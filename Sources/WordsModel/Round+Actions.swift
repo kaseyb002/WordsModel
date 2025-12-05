@@ -218,18 +218,36 @@ extension Round {
             throw WordPlacementError.tilesNotPlacedInAStraightLine
         }
         
-        // Check if consecutive
+        // Check if consecutive (accounting for existing board tiles between placements)
         if isHorizontal {
             let columns: [Int] = sortedByRow.map { $0.position.column }.sorted()
-            for i in 1..<columns.count {
-                guard columns[i] == columns[i-1] + 1 else {
+            let row = sortedByRow.first!.position.row
+            let minCol = columns.first!
+            let maxCol = columns.last!
+            
+            // Check that all positions between min and max are either:
+            // 1. One of the new placements, OR
+            // 2. Already occupied by an existing board tile
+            for col in minCol...maxCol {
+                let isNewPlacement = columns.contains(col)
+                let hasExistingTile = board[row][col] != nil
+                guard isNewPlacement || hasExistingTile else {
                     throw WordPlacementError.tilesNotPlacedConsecutively
                 }
             }
         } else {
             let rows: [Int] = sortedByCol.map { $0.position.row }.sorted()
-            for i in 1..<rows.count {
-                guard rows[i] == rows[i-1] + 1 else {
+            let col = sortedByCol.first!.position.column
+            let minRow = rows.first!
+            let maxRow = rows.last!
+            
+            // Check that all positions between min and max are either:
+            // 1. One of the new placements, OR
+            // 2. Already occupied by an existing board tile
+            for row in minRow...maxRow {
+                let isNewPlacement = rows.contains(row)
+                let hasExistingTile = board[row][col] != nil
+                guard isNewPlacement || hasExistingTile else {
                     throw WordPlacementError.tilesNotPlacedConsecutively
                 }
             }
