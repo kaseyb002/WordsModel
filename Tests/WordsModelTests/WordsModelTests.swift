@@ -54,9 +54,9 @@ func placeFirstWord() async throws {
     let tile3 = playerRack.tiles[2]
     
     let placements = [
-        WordPlacement(tileID: tile1, position: centerPosition),
-        WordPlacement(tileID: tile2, position: BoardPosition(row: 7, column: 8)),
-        WordPlacement(tileID: tile3, position: BoardPosition(row: 7, column: 9))
+        TilePlacement(tileID: tile1, position: centerPosition),
+        TilePlacement(tileID: tile2, position: BoardPosition(row: 7, column: 8)),
+        TilePlacement(tileID: tile3, position: BoardPosition(row: 7, column: 9))
     ]
     
     let form = PlaceWordForm(placements: placements)
@@ -64,7 +64,7 @@ func placeFirstWord() async throws {
     // This will fail word validation (not a real word), but tests the structure
     // In a real implementation, you'd validate against a dictionary
     do {
-        try round.placeWord(form: form)
+        try await round.placeWord(form: form)
         // If it succeeds, check that tiles were placed
         #expect(round.board[7][7] != nil)
     } catch WordsModelError.wordNotInDictionary {

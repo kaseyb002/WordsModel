@@ -1,10 +1,10 @@
 import Foundation
 
-public struct WordPlacement: Equatable, Codable {
+public struct TilePlacement: Equatable, Codable {
     public let tileID: TileID
     public let position: BoardPosition
     /// For blank tiles, specify what letter it represents (required for blanks, must be nil for regular tiles)
-    public let letter: Tile.Letter?
+    public let blankLetterUsedAs: Tile.Letter?
     
     /// - Parameters:
     ///   - tileID: The ID of the tile to place
@@ -22,18 +22,18 @@ public struct WordPlacement: Equatable, Codable {
     public init(
         tileID: TileID,
         position: BoardPosition,
-        letter: Tile.Letter? = nil
+        blankLetterUsedAs: Tile.Letter? = nil
     ) {
         self.tileID = tileID
         self.position = position
-        self.letter = letter
+        self.blankLetterUsedAs = blankLetterUsedAs
     }
 }
 
 public struct PlaceWordForm: Equatable, Codable {
-    public let placements: [WordPlacement]
+    public let placements: [TilePlacement]
     
-    public init(placements: [WordPlacement]) {
+    public init(placements: [TilePlacement]) {
         self.placements = placements
     }
 }

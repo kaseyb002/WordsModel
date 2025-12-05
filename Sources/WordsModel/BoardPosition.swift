@@ -12,4 +12,3 @@ public struct BoardPosition: Hashable, Codable {
         self.column = column
     }
 }
-

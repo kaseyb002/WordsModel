@@ -12,12 +12,15 @@ public enum WordsModelError: Error, Equatable {
     case firstWordMustUseCenterSquare
     case invalidPosition
     case positionAlreadyOccupied
-    case wordNotInDictionary
+    case wordNotInDictionary(word: String)
     case invalidWordFormation
     case gameIsComplete
     case insufficientTilesToExchange
     case cannotPassOnFirstTurn
     case blankTileRequiresLetter
     case nonBlankTileCannotHaveLetter
+    case tilesNotPlacedInAStraightLine
+    case tilesNotPlacedConsecutively
+    case noTilePlacementsFound
 }
 

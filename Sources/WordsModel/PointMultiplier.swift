@@ -9,4 +9,3 @@ public struct PointMultiplier: Equatable, Codable {
         self.word = word
     }
 }
-

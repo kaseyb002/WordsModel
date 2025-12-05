@@ -31,6 +31,7 @@ public struct Round: Equatable, Codable {
             switch self {
             case .waitingForPlayer(let playerID):
                 "Waiting for player \(playerID) to play"
+
             case .gameComplete(let winner):
                 "\(winner.name) won the game with \(winner.score) points."
             }
@@ -43,7 +44,7 @@ public struct Round: Equatable, Codable {
         public let timestamp: Date
         
         public enum ActionType: Equatable, Codable {
-            case placeWord(placements: [WordPlacement], score: Int)
+            case placeWord(placements: [TilePlacement], score: Int)
             case pass
             case exchange(tileIDs: [TileID])
         }
@@ -59,4 +60,3 @@ public struct Round: Equatable, Codable {
         }
     }
 }
-

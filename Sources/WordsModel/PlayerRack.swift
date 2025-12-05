@@ -12,4 +12,3 @@ public struct PlayerRack: Equatable, Codable {
         self.tiles = tiles
     }
 }
-

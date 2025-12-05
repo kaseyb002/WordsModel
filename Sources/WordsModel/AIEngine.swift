@@ -214,12 +214,12 @@ public struct AIEngine {
         tiles: [TileID],
         anchorPosition: BoardPosition,
         isHorizontal: Bool
-    ) throws -> [[WordPlacement]] {
-        var placements: [[WordPlacement]] = []
+    ) throws -> [[TilePlacement]] {
+        var placements: [[TilePlacement]] = []
         
         // Try placing the word with anchor at different positions within the word
         for anchorIndex in 0..<tiles.count {
-            var placement: [WordPlacement] = []
+            var placement: [TilePlacement] = []
             var valid = true
             
             for (tileIndex, tileID) in tiles.enumerated() {
@@ -255,10 +255,10 @@ public struct AIEngine {
                 let tile = round.tilesMap[tileID]!
                 let letter: Tile.Letter? = tile.letter == .blank ? .a : nil // Placeholder for blank
                 
-                placement.append(WordPlacement(
+                placement.append(TilePlacement(
                     tileID: tileID,
                     position: position,
-                    letter: letter
+                    blankLetterUsedAs: letter
                 ))
             }
             
@@ -271,14 +271,14 @@ public struct AIEngine {
     }
     
     /// Validate that a word placement forms valid dictionary words
-    private func isValidWordPlacement(round: Round, placements: [WordPlacement]) async throws -> Bool {
+    private func isValidWordPlacement(round: Round, placements: [TilePlacement]) async throws -> Bool {
         // Create a temporary round to test the placement
         var testRound = round
         
         // Place tiles temporarily
         for placement in placements {
             testRound.board[placement.position.row][placement.position.column] = placement.tileID
-            if let letter = placement.letter,
+            if let letter = placement.blankLetterUsedAs,
                let tile = testRound.tilesMap[placement.tileID],
                tile.letter == .blank {
                 testRound.blankTileAssignments[placement.tileID] = letter
@@ -300,7 +300,7 @@ public struct AIEngine {
     }
     
     /// Convert word placements to string
-    private func wordString(from placements: [WordPlacement], round: Round) throws -> String {
+    private func wordString(from placements: [TilePlacement], round: Round) throws -> String {
         var wordString = ""
         for placement in placements {
             guard let tile = round.tilesMap[placement.tileID] else {
@@ -308,7 +308,7 @@ public struct AIEngine {
             }
             
             let letter: Tile.Letter
-            if tile.letter == .blank, let assignedLetter = placement.letter {
+            if tile.letter == .blank, let assignedLetter = placement.blankLetterUsedAs {
                 letter = assignedLetter
             } else {
                 letter = tile.letter
@@ -386,7 +386,7 @@ public struct AIEngine {
             
             let square = round.boardSquares[placement.position.row][placement.position.column]
             let letterValue: Int
-            if tile.letter == .blank, let assignedLetter = placement.letter {
+            if tile.letter == .blank, let assignedLetter = placement.blankLetterUsedAs {
                 letterValue = assignedLetter.standardPointValue
             } else {
                 letterValue = tile.pointValue
@@ -451,9 +451,9 @@ extension PlaceWordForm {
 
 extension Round {
     /// Get all words that would be formed by a placement
-    fileprivate func getAllWordsFormed(placements: [WordPlacement]) throws -> [[WordPlacement]] {
+    fileprivate func getAllWordsFormed(placements: [TilePlacement]) throws -> [[TilePlacement]] {
         // This mirrors the logic in Round+Actions but for testing
-        var words: [[WordPlacement]] = []
+        var words: [[TilePlacement]] = []
         words.append(placements)
         
         // Determine main word direction
@@ -486,8 +486,8 @@ extension Round {
     }
     
     /// Get word at a specific position
-    private func getWordAtPosition(row: Int, column: Int, isHorizontal: Bool) throws -> [WordPlacement]? {
-        var word: [WordPlacement] = []
+    private func getWordAtPosition(row: Int, column: Int, isHorizontal: Bool) throws -> [TilePlacement]? {
+        var word: [TilePlacement] = []
         
         if isHorizontal {
             // Find start of word
@@ -501,10 +501,10 @@ extension Round {
             while currentCol < columns && board[row][currentCol] != nil {
                 if let tileID = board[row][currentCol] {
                     let position = BoardPosition(row: row, column: currentCol)
-                    word.append(WordPlacement(
+                    word.append(TilePlacement(
                         tileID: tileID,
                         position: position,
-                        letter: blankTileAssignments[tileID]
+                        blankLetterUsedAs: blankTileAssignments[tileID]
                     ))
                 }
                 currentCol += 1
@@ -521,10 +521,10 @@ extension Round {
             while currentRow < rows && board[currentRow][column] != nil {
                 if let tileID = board[currentRow][column] {
                     let position = BoardPosition(row: currentRow, column: column)
-                    word.append(WordPlacement(
+                    word.append(TilePlacement(
                         tileID: tileID,
                         position: position,
-                        letter: blankTileAssignments[tileID]
+                        blankLetterUsedAs: blankTileAssignments[tileID]
                     ))
                 }
                 currentRow += 1

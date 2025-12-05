@@ -29,7 +29,8 @@ extension Round {
     
     public func tile(at position: BoardPosition) -> Tile? {
         guard position.row >= 0 && position.row < rows &&
-              position.column >= 0 && position.column < columns else {
+              position.column >= 0 && position.column < columns
+        else {
             return nil
         }
         
@@ -44,6 +45,7 @@ extension Round {
         switch state {
         case .gameComplete:
             return true
+            
         case .waitingForPlayer:
             return false
         }
@@ -53,6 +55,7 @@ extension Round {
         switch state {
         case .gameComplete(let winner):
             return winner
+            
         case .waitingForPlayer:
             return nil
         }
@@ -73,4 +76,3 @@ extension Round.State {
         }
     }
 }
-
