@@ -1,6 +1,6 @@
 import Foundation
 
-public enum BoardSquare: Equatable, Codable {
+public enum BoardSquare: Equatable, Codable, Sendable {
     case empty
     case doubleLetter
     case tripleLetter

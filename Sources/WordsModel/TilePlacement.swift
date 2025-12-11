@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TilePlacement: Equatable, Codable {
+public struct TilePlacement: Equatable, Codable, Sendable {
     public let tileID: TileID
     public let position: BoardPosition
     /// For blank tiles, specify what letter it represents (required for blanks, must be nil for regular tiles)
@@ -30,7 +30,7 @@ public struct TilePlacement: Equatable, Codable {
     }
 }
 
-public struct PlaceWordForm: Equatable, Codable {
+public struct PlaceWordForm: Equatable, Codable, Sendable {
     public let placements: [TilePlacement]
     
     public init(placements: [TilePlacement]) {

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct PointMultiplier: Equatable, Codable {
+public struct PointMultiplier: Equatable, Codable, Sendable {
     public let letter: Int
     public let word: Int
     

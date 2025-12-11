@@ -1,6 +1,6 @@
 import Foundation
 
-public enum WordsModelError: Error, Equatable {
+public enum WordsModelError: Error, Equatable, Sendable {
     case notEnoughPlayers
     case tooManyPlayers
     case notWaitingForPlayerToAct
@@ -13,7 +13,7 @@ public enum WordsModelError: Error, Equatable {
     case cannotPassOnFirstTurn
 }
 
-public enum WordPlacementError: Error, Equatable {
+public enum WordPlacementError: Error, Equatable, Sendable {
     case wordDoesNotConnectToExistingTiles
     case tilesNotPlacedInAStraightLine
     case tilesNotPlacedConsecutively

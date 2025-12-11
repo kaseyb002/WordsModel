@@ -2,12 +2,12 @@ import Foundation
 
 public typealias TileID = Int
 
-public struct Tile: Hashable, Codable, Identifiable {
+public struct Tile: Hashable, Codable, Identifiable, Sendable {
     public let id: TileID
     public let letter: Letter
     public let pointValue: Int
     
-    public enum Letter: String, Equatable, Codable, CaseIterable {
+    public enum Letter: String, Equatable, Codable, CaseIterable, Sendable {
         case blank = " "
         case a = "A", b = "B", c = "C", d = "D", e = "E", f = "F", g = "G"
         case h = "H", i = "I", j = "J", k = "K", l = "L", m = "M", n = "N"

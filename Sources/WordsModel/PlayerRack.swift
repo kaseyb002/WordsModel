@@ -1,6 +1,6 @@
 import Foundation
 
-public struct PlayerRack: Equatable, Codable {
+public struct PlayerRack: Equatable, Codable, Sendable {
     public var player: Player
     public var tiles: [TileID]
     

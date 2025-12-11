@@ -1,6 +1,6 @@
 import Foundation
 
-public struct WordPlacementResult: Equatable {
+public struct WordPlacementResult: Equatable, Sendable {
     public let tilePlacements: [TilePlacement]
     public let points: Int
     

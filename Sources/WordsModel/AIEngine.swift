@@ -1,12 +1,12 @@
 import Foundation
 
-public enum AIDifficulty: String, CaseIterable, Codable {
+public enum AIDifficulty: String, CaseIterable, Codable, Sendable {
     case easy = "Easy"
     case medium = "Medium"
     case hard = "Hard"
 }
 
-public struct AIEngine {
+public struct AIEngine: Sendable {
     private let difficulty: AIDifficulty
     
     public init(difficulty: AIDifficulty) {
