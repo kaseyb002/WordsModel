@@ -97,7 +97,7 @@ extension Round {
         ))
         
         // Check for game end (all players passed consecutively)
-        if consecutivePasses >= playerRacks.count {
+        if consecutivePasses >= Constants.endOnConsecutivePasses {
             endGame()
             return
         }
@@ -297,6 +297,11 @@ extension Round {
         // Get all words formed (main word + any perpendicular words)
         let words: [[TilePlacement]] = try getAllWordsThatWillBeFormed(placements: placements)
         
+        // Ensure at least one word is formed (defensive check)
+        guard !words.isEmpty else {
+            throw WordPlacementError.invalidWordPlacement
+        }
+        
         for word in words {
             var wordScore = 0
             var wordMultiplierForThisWord = 1
@@ -335,6 +340,11 @@ extension Round {
     
     private func validateWordsAgainstDictionary(placements: [TilePlacement]) async throws {
         let letterPlacementArrays: [[TilePlacement]] = try getAllWordsThatWillBeFormed(placements: placements)
+        
+        // Ensure at least one word is formed
+        guard !letterPlacementArrays.isEmpty else {
+            throw WordPlacementError.invalidWordPlacement
+        }
         
         // Convert each word placement array to a word string and validate
         for letterPlacements in letterPlacementArrays {
@@ -547,7 +557,7 @@ extension Round {
         }
         
         // Game ends when tile bag is empty and all players pass
-        if tileBag.isEmpty && consecutivePasses >= playerRacks.count {
+        if tileBag.isEmpty && consecutivePasses >= Constants.endOnConsecutivePasses {
             endGame()
         }
     }
