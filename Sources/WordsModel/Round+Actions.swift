@@ -291,6 +291,35 @@ extension Round {
         return false
     }
     
+    /// Calculates the score for a single word (represented by tile placements)
+    func scoreForWord(_ word: [TilePlacement]) throws -> Int {
+        var wordScore = 0
+        var wordMultiplierForThisWord = 1
+        
+        for placement in word {
+            guard let tile = tilesMap[placement.tileID] else {
+                throw WordPlacementError.tileDoesNotExistInPlayersRack
+            }
+            
+            let square = boardSquares[placement.position.row][placement.position.column]
+            let multipliers = square.multiplier
+            
+            // Determine letter value (use assigned letter for blanks)
+            let letterValue: Int
+            if tile.letter == .blank, let assignedLetter = placement.blankLetterUsedAs {
+                letterValue = assignedLetter.standardPointValue
+            } else {
+                letterValue = tile.pointValue
+            }
+            
+            let letterScore = letterValue * multipliers.letter
+            wordScore += letterScore
+            wordMultiplierForThisWord *= multipliers.word
+        }
+        
+        return wordScore * wordMultiplierForThisWord
+    }
+    
     private func calculateScore(placements: [TilePlacement]) throws -> Int {
         var totalScore = 0
         
@@ -303,31 +332,7 @@ extension Round {
         }
         
         for word in words {
-            var wordScore = 0
-            var wordMultiplierForThisWord = 1
-            
-            for placement in word {
-                guard let tile = tilesMap[placement.tileID] else {
-                    throw WordPlacementError.tileDoesNotExistInPlayersRack
-                }
-                
-                let square = boardSquares[placement.position.row][placement.position.column]
-                let multipliers = square.multiplier
-                
-                // Determine letter value (use assigned letter for blanks)
-                let letterValue: Int
-                if tile.letter == .blank, let assignedLetter = placement.blankLetterUsedAs {
-                    letterValue = assignedLetter.standardPointValue
-                } else {
-                    letterValue = tile.pointValue
-                }
-                
-                let letterScore = letterValue * multipliers.letter
-                wordScore += letterScore
-                wordMultiplierForThisWord *= multipliers.word
-            }
-            
-            totalScore += wordScore * wordMultiplierForThisWord
+            totalScore += try scoreForWord(word)
         }
         
         // Bonus for using all 7 tiles
@@ -363,7 +368,7 @@ extension Round {
     
     /// Get all words that will be formed (including perpendicular words with existing tiles)
     /// Searches left/right and up/down from each placement until hitting empty spaces
-    private func getAllWordsThatWillBeFormed(placements: [TilePlacement]) throws -> [[TilePlacement]] {
+    func getAllWordsThatWillBeFormed(placements: [TilePlacement]) throws -> [[TilePlacement]] {
         var words: [[TilePlacement]] = []
         var visitedWordPositions: Set<Set<BoardPosition>> = []
         

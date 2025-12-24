@@ -64,6 +64,37 @@ extension Round {
     public var tilesRemainingInBag: Int {
         tileBag.count
     }
+    
+    private func highestScoringWord(from placements: [TilePlacement]) -> [TilePlacement]? {
+        // get the highest scoring word that was created from this placement of tiles
+        // return the tile placements
+        
+        // Get all words that will be formed from these placements
+        guard let words = try? getAllWordsThatWillBeFormed(placements: placements) else {
+            return nil
+        }
+        
+        guard !words.isEmpty else {
+            return nil
+        }
+        
+        // Calculate score for each word and find the highest scoring one
+        var highestScoringWordPlacements: [TilePlacement]?
+        var highestScore = 0
+        
+        for word in words {
+            guard let wordScore = try? scoreForWord(word) else {
+                continue
+            }
+            
+            if wordScore > highestScore {
+                highestScore = wordScore
+                highestScoringWordPlacements = word
+            }
+        }
+        
+        return highestScoringWordPlacements
+    }
 }
 
 extension Round.State {
