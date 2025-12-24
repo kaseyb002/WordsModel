@@ -5,8 +5,8 @@ import Testing
 // MARK: - Helpers for tests
 
 private func makePlayers() -> [Player] {
-    let p1 = Player(id: "alice", name: "Alice", imageURL: nil)
-    let p2 = Player(id: "bob", name: "Bob", imageURL: nil)
+    let p1 = Player(id: "alice", name: "Alice", imageURL: nil, color: .red)
+    let p2 = Player(id: "bob", name: "Bob", imageURL: nil, color: .red)
     return [p1, p2]
 }
 
@@ -135,4 +135,29 @@ func gameStateTransitions() async throws {
     #expect(!round.isPlayersTurn(playerID: "bob"))
     #expect(!round.isGameComplete)
     #expect(round.winner == nil)
+}
+
+// MARK: - Test: Player colors
+
+@Test
+func playerColors() async throws {
+    let players = makePlayers()
+    let round = try Round(players: players)
+    
+    // Verify colors are assigned correctly
+    #expect(round.playerRacks[0].player.color == .red)
+    #expect(round.playerRacks[1].player.color == .blue)
+    
+    // Test with 4 players
+    let fourPlayers = [
+        Player(id: "p1", name: "Player 1", imageURL: nil, color: .red),
+        Player(id: "p2", name: "Player 2", imageURL: nil, color: .red),
+        Player(id: "p3", name: "Player 3", imageURL: nil, color: .red),
+        Player(id: "p4", name: "Player 4", imageURL: nil, color: .red)
+    ]
+    let round4 = try Round(players: fourPlayers)
+    #expect(round4.playerRacks[0].player.color == .red)
+    #expect(round4.playerRacks[1].player.color == .blue)
+    #expect(round4.playerRacks[2].player.color == .green)
+    #expect(round4.playerRacks[3].player.color == .yellow)
 }

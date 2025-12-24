@@ -21,6 +21,13 @@ extension Round {
         self.rows = rows
         self.columns = columns
         
+        // Assign colors to players (red, blue, green, yellow in order)
+        let colors: [Color] = [.red, .blue, .green, .yellow]
+        var playersWithColors = players
+        for (index, player) in playersWithColors.enumerated() {
+            playersWithColors[index] = player.changeColor(color: colors[index])
+        }
+        
         // Initialize tiles
         let allTiles = cookedTiles ?? Tile.standardDistribution().shuffled()
         self.tilesMap = Dictionary(uniqueKeysWithValues: allTiles.map { ($0.id, $0) })
@@ -32,14 +39,14 @@ extension Round {
         // Deal tiles to players (7 tiles each)
         var remainingTiles = allTiles.map(\.id).shuffled()
         self.playerRacks = try Self.dealTiles(
-            to: players,
+            to: playersWithColors,
             tileBag: &remainingTiles,
             tilesPerPlayer: 7
         )
         self.tileBag = remainingTiles
         
         // Set initial state
-        self.state = .waitingForPlayer(id: players.first!.id)
+        self.state = .waitingForPlayer(id: playersWithColors.first!.id)
     }
     
     private static func dealTiles(

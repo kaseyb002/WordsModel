@@ -5,23 +5,37 @@ public struct Player: Equatable, Codable, Sendable {
     public var name: String
     public var imageURL: URL?
     public var score: Int
+    public let color: Color
     
     public enum CodingKeys: String, CodingKey {
         case id
         case name
         case imageURL = "imageUrl"
         case score
+        case color
     }
     
     public init(
         id: String,
         name: String,
         imageURL: URL?,
-        score: Int = 0
+        score: Int = 0,
+        color: Color
     ) {
         self.id = id
         self.name = name
         self.imageURL = imageURL
         self.score = score
+        self.color = color
+    }
+    
+    public func changeColor(color: Color) -> Player {
+        Player(
+            id: id,
+            name: name,
+            imageURL: imageURL,
+            score: score,
+            color: color
+        )
     }
 }
