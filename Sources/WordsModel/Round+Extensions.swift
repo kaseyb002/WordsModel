@@ -65,7 +65,7 @@ extension Round {
         tileBag.count
     }
     
-    private func highestScoringWord(from placements: [TilePlacement]) -> [TilePlacement]? {
+    public func highestScoringWord(from placements: [TilePlacement]) -> [TilePlacement]? {
         // get the highest scoring word that was created from this placement of tiles
         // return the tile placements
         
