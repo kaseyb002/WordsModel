@@ -65,6 +65,19 @@ extension Round {
         tileBag.count
     }
     
+    public func playerColor(forTileAt position: BoardPosition) -> Color? {
+        // Look through log in reverse order to find the most recent placement at this position
+        for action in log.reversed() {
+            if case .placeWord(let placements, _) = action.action {
+                if placements.contains(where: { $0.position == position }) {
+                    // Found the player who placed a tile at this position
+                    return player(byID: action.playerId)?.color
+                }
+            }
+        }
+        return nil
+    }
+    
     public func highestScoringWord(from placements: [TilePlacement]) -> [TilePlacement]? {
         // get the highest scoring word that was created from this placement of tiles
         // return the tile placements
