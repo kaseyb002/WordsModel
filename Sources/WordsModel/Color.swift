@@ -1,26 +1,26 @@
 import Foundation
 
 public enum Color: String, Equatable, Codable, Sendable, CaseIterable {
-    case red = "r"
+    case yellow = "y"
     case blue = "b"
     case green = "g"
-    case yellow = "y"
-    
+    case red = "r"
+
     public var name: String {
         switch self {
-        case .red: "Red"
+        case .yellow: "Yellow"
         case .blue: "Blue"
         case .green: "Green"
-        case .yellow: "Yellow"
+        case .red: "Red"
         }
     }
     
     public var emoji: String {
         switch self {
-        case .red: "🔴"
+        case .yellow: "🟡"
         case .blue: "🔵"
         case .green: "🟢"
-        case .yellow: "🟡"
+        case .red: "🔴"
         }
     }
 }
