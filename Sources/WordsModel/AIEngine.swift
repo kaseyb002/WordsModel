@@ -136,8 +136,20 @@ public struct AIEngine: Sendable {
     ) async throws -> [PlaceWordForm] {
         var moves: [PlaceWordForm] = []
         
-        // Try placing words of different lengths (2-7 tiles)
-        for wordLength in 2...min(7, playerRack.tiles.count) {
+        // Check if this is the first word (board is empty)
+        let isFirstWord = round.board.allSatisfy { $0.allSatisfy { $0 == nil } }
+        
+        // First word requires at least 2 tiles; subsequent moves can use 1 tile
+        let minWordLength = isFirstWord ? 2 : 1
+        let maxWordLength = min(7, playerRack.tiles.count)
+        
+        // Ensure we have enough tiles and valid range
+        guard maxWordLength >= minWordLength else {
+            return []
+        }
+        
+        // Try placing words of different lengths (minWordLength to maxWordLength)
+        for wordLength in minWordLength...maxWordLength {
             // Try all combinations of tiles from rack
             let tileCombinations = generateTileCombinations(
                 tiles: playerRack.tiles,
