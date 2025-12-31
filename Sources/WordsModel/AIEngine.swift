@@ -302,8 +302,14 @@ public struct AIEngine: Sendable {
         
         for word in words {
             let wordString = try wordString(from: word, round: testRound)
-            let isValidWord = await !WordDictionary.shared.isValid(wordString)
-            if wordString.count > 1 && isValidWord {
+            
+            // Reject single-letter words (not allowed in Scrabble)
+            if wordString.count <= 1 {
+                return false
+            }
+            
+            // Reject words not in dictionary
+            if await !WordDictionary.shared.isValid(wordString) {
                 return false
             }
         }
@@ -313,12 +319,27 @@ public struct AIEngine: Sendable {
     
     /// Convert word placements to string
     private func wordString(from placements: [TilePlacement], round: Round) throws -> String {
+        // Sort placements by position to ensure correct word order
+        // Determine if word is horizontal or vertical
+        let isHorizontal = placements.count > 1 &&
+            placements.allSatisfy { $0.position.row == placements.first?.position.row }
+        
+        let sortedPlacements: [TilePlacement]
+        if isHorizontal {
+            // Sort left-to-right (by column)
+            sortedPlacements = placements.sorted { $0.position.column < $1.position.column }
+        } else {
+            // Sort top-to-bottom (by row)
+            sortedPlacements = placements.sorted { $0.position.row < $1.position.row }
+        }
+        
         var wordString = ""
-        for placement in placements {
+        for placement in sortedPlacements {
             guard let tile = round.tilesMap[placement.tileID] else {
                 throw WordPlacementError.tileDoesNotExistInPlayersRack
             }
             
+            // Use assigned letter for blanks, otherwise use tile's letter
             let letter: Tile.Letter
             if tile.letter == .blank, let assignedLetter = placement.blankLetterUsedAs {
                 letter = assignedLetter
@@ -328,6 +349,7 @@ public struct AIEngine: Sendable {
             
             wordString.append(letter.rawValue)
         }
+        // Return uppercase to match dictionary format
         return wordString.uppercased()
     }
     
