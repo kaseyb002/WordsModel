@@ -91,12 +91,15 @@ extension Round {
             return nil
         }
         
+        // Track which positions have newly placed tiles (premium squares only apply to these)
+        let newlyPlacedPositions = Set(placements.map { $0.position })
+        
         // Calculate score for each word and find the highest scoring one
         var highestScoringWordPlacements: [TilePlacement]?
         var highestScore = 0
         
         for word in words {
-            guard let wordScore = try? scoreForWord(word) else {
+            guard let wordScore = try? scoreForWord(word, newlyPlacedPositions: newlyPlacedPositions) else {
                 continue
             }
             

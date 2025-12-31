@@ -292,7 +292,10 @@ extension Round {
     }
     
     /// Calculates the score for a single word (represented by tile placements)
-    func scoreForWord(_ word: [TilePlacement]) throws -> Int {
+    /// - Parameters:
+    ///   - word: All tile placements that form this word (including existing tiles on board)
+    ///   - newlyPlacedPositions: Positions of tiles being placed THIS turn (premium squares only apply to these)
+    func scoreForWord(_ word: [TilePlacement], newlyPlacedPositions: Set<BoardPosition>) throws -> Int {
         var wordScore = 0
         var wordMultiplierForThisWord = 1
         
@@ -300,9 +303,6 @@ extension Round {
             guard let tile = tilesMap[placement.tileID] else {
                 throw WordPlacementError.tileDoesNotExistInPlayersRack
             }
-            
-            let square = boardSquares[placement.position.row][placement.position.column]
-            let multipliers = square.multiplier
             
             // Determine letter value (use assigned letter for blanks)
             let letterValue: Int
@@ -312,9 +312,19 @@ extension Round {
                 letterValue = tile.pointValue
             }
             
-            let letterScore = letterValue * multipliers.letter
-            wordScore += letterScore
-            wordMultiplierForThisWord *= multipliers.word
+            // Premium squares ONLY apply to tiles being placed THIS turn
+            // Once a tile is on a premium square, the bonus is "used up"
+            if newlyPlacedPositions.contains(placement.position) {
+                let square = boardSquares[placement.position.row][placement.position.column]
+                let multipliers = square.multiplier
+                
+                let letterScore = letterValue * multipliers.letter
+                wordScore += letterScore
+                wordMultiplierForThisWord *= multipliers.word
+            } else {
+                // Existing tiles just use face value, no multiplier
+                wordScore += letterValue
+            }
         }
         
         return wordScore * wordMultiplierForThisWord
@@ -331,8 +341,11 @@ extension Round {
             throw WordPlacementError.invalidWordPlacement
         }
         
+        // Track which positions have newly placed tiles (premium squares only apply to these)
+        let newlyPlacedPositions = Set(placements.map { $0.position })
+        
         for word in words {
-            totalScore += try scoreForWord(word)
+            totalScore += try scoreForWord(word, newlyPlacedPositions: newlyPlacedPositions)
         }
         
         // Bonus for using all 7 tiles
