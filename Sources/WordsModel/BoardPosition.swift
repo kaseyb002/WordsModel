@@ -21,6 +21,6 @@ extension [[TileID?]] {
         else {
             return nil
         }
-        return [position.row][position.column]
+        return self[position.row][position.column]
     }
 }
