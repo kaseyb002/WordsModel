@@ -14,7 +14,13 @@ public struct BoardPosition: Hashable, Codable, Sendable {
 }
 
 extension [[TileID?]] {
+    /// Safely accesses `[row][column]`
     public subscript(position: BoardPosition) -> TileID? {
-        [position.row][position.column]
+        guard position.row < count,
+              position.column < self[position.row].count
+        else {
+            return nil
+        }
+        return [position.row][position.column]
     }
 }
