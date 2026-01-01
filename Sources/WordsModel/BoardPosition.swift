@@ -12,3 +12,9 @@ public struct BoardPosition: Hashable, Codable, Sendable {
         self.column = column
     }
 }
+
+extension [[TileID?]] {
+    public subscript(position: BoardPosition) -> TileID? {
+        [position.row][position.column]
+    }
+}
