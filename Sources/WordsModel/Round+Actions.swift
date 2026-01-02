@@ -510,7 +510,7 @@ extension Round {
         return word.count > 1 ? word : nil
     }
     
-    private func wordString(from placements: [TilePlacement]) throws -> String {
+    func wordString(from placements: [TilePlacement]) throws -> String {
         // Sort placements by position to ensure correct word order
         // Determine if word is horizontal or vertical
         let isHorizontal = placements.count > 1 && 

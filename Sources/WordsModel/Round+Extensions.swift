@@ -111,6 +111,111 @@ extension Round {
         
         return highestScoringWordPlacements
     }
+    
+    /// Returns all valid words formed at the given board position
+    /// - Parameter boardPosition: The position to check for words
+    /// - Returns: An array of word strings (uppercase) formed at this position, empty if no tile exists or no words are formed
+    public func wordsFormed(in boardPosition: BoardPosition) -> [String] {
+        // Check if there's a tile at this position
+        guard tile(at: boardPosition) != nil else {
+            return []
+        }
+        
+        var words: [String] = []
+        
+        // Build horizontal word (left to right)
+        if let horizontalWord = buildWordAtPosition(
+            row: boardPosition.row,
+            column: boardPosition.column,
+            isHorizontal: true
+        ), horizontalWord.count > 1 {
+            if let wordString = try? wordString(from: horizontalWord) {
+                words.append(wordString)
+            }
+        }
+        
+        // Build vertical word (top to bottom)
+        if let verticalWord = buildWordAtPosition(
+            row: boardPosition.row,
+            column: boardPosition.column,
+            isHorizontal: false
+        ), verticalWord.count > 1 {
+            if let wordString = try? wordString(from: verticalWord) {
+                words.append(wordString)
+            }
+        }
+        
+        return words
+    }
+    
+    /// Builds a word at the given position by searching in one direction
+    public func buildWordAtPosition(
+        row: Int,
+        column: Int,
+        isHorizontal: Bool
+    ) -> [TilePlacement]? {
+        var word: [TilePlacement] = []
+        
+        if isHorizontal {
+            // Search left until we hit an empty space
+            var leftmostCol = column
+            while leftmostCol > 0 {
+                let pos = BoardPosition(row: row, column: leftmostCol - 1)
+                if tile(at: pos) != nil {
+                    leftmostCol -= 1
+                } else {
+                    break
+                }
+            }
+            
+            // Build word from left to right until we hit an empty space
+            var currentCol = leftmostCol
+            while currentCol < columns {
+                let pos = BoardPosition(row: row, column: currentCol)
+                guard let tileID = board[pos.row][pos.column] else {
+                    break
+                }
+                
+                let placement = TilePlacement(
+                    tileID: tileID,
+                    position: pos,
+                    blankLetterUsedAs: blankTileAssignments[tileID]
+                )
+                word.append(placement)
+                currentCol += 1
+            }
+        } else {
+            // Search up until we hit an empty space
+            var topmostRow = row
+            while topmostRow > 0 {
+                let pos = BoardPosition(row: topmostRow - 1, column: column)
+                if tile(at: pos) != nil {
+                    topmostRow -= 1
+                } else {
+                    break
+                }
+            }
+            
+            // Build word from top to bottom until we hit an empty space
+            var currentRow = topmostRow
+            while currentRow < rows {
+                let pos = BoardPosition(row: currentRow, column: column)
+                guard let tileID = board[pos.row][pos.column] else {
+                    break
+                }
+                
+                let placement = TilePlacement(
+                    tileID: tileID,
+                    position: pos,
+                    blankLetterUsedAs: blankTileAssignments[tileID]
+                )
+                word.append(placement)
+                currentRow += 1
+            }
+        }
+        
+        return word.isEmpty ? nil : word
+    }
 }
 
 extension Round.State {
