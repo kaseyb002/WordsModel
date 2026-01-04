@@ -65,7 +65,7 @@ extension Round {
         tileBag.count
     }
     
-    public func playerColor(forTileAt position: BoardPosition) -> Color? {
+    public func playerColor(forTileAt position: BoardPosition) -> PlayerColor? {
         // Look through log in reverse order to find the most recent placement at this position
         for action in log.reversed() {
             if case .placeWord(let placements, _) = action.action {

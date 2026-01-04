@@ -1,6 +1,6 @@
 import Foundation
 
-public enum Color: String, Equatable, Codable, Sendable, CaseIterable {
+public enum PlayerColor: String, Equatable, Codable, Sendable, CaseIterable {
     case yellow = "y"
     case blue = "b"
     case green = "g"

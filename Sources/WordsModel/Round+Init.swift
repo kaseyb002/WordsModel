@@ -22,7 +22,7 @@ extension Round {
         self.columns = columns
         
         // Assign colors to players (red, blue, green, yellow in order)
-        let colors: [Color] = Color.allCases
+        let colors: [PlayerColor] = PlayerColor.allCases
         var playersWithColors = players
         for (index, player) in playersWithColors.enumerated() {
             playersWithColors[index] = player.changeColor(color: colors[index])

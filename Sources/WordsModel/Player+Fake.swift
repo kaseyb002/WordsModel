@@ -6,7 +6,7 @@ extension Player {
         name: String = "Player",
         imageURL: URL? = nil,
         score: Int = 0,
-        color: Color = .red
+        color: PlayerColor = .red
     ) -> Self {
         return Player(
             id: id,

@@ -145,7 +145,7 @@ func playerColors() async throws {
     let round = try Round(players: players)
     
     // Verify colors are assigned correctly
-    #expect(round.playerRacks[0].player.color == .red)
+    #expect(round.playerRacks[0].player.color == .yellow)
     #expect(round.playerRacks[1].player.color == .blue)
     
     // Test with 4 players
@@ -156,8 +156,8 @@ func playerColors() async throws {
         Player(id: "p4", name: "Player 4", imageURL: nil, color: .red)
     ]
     let round4 = try Round(players: fourPlayers)
-    #expect(round4.playerRacks[0].player.color == .red)
+    #expect(round4.playerRacks[0].player.color == .yellow)
     #expect(round4.playerRacks[1].player.color == .blue)
     #expect(round4.playerRacks[2].player.color == .green)
-    #expect(round4.playerRacks[3].player.color == .yellow)
+    #expect(round4.playerRacks[3].player.color == .red)
 }

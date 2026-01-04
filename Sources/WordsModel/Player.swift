@@ -5,7 +5,7 @@ public struct Player: Equatable, Codable, Sendable {
     public var name: String
     public var imageURL: URL?
     public var score: Int
-    public let color: Color
+    public let color: PlayerColor
     
     public enum CodingKeys: String, CodingKey {
         case id
@@ -20,7 +20,7 @@ public struct Player: Equatable, Codable, Sendable {
         name: String,
         imageURL: URL?,
         score: Int = 0,
-        color: Color
+        color: PlayerColor
     ) {
         self.id = id
         self.name = name
@@ -29,7 +29,7 @@ public struct Player: Equatable, Codable, Sendable {
         self.color = color
     }
     
-    public func changeColor(color: Color) -> Player {
+    public func changeColor(color: PlayerColor) -> Player {
         Player(
             id: id,
             name: name,
