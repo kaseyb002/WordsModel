@@ -6,6 +6,12 @@ public struct TilePlacement: Equatable, Codable, Sendable {
     /// For blank tiles, specify what letter it represents (required for blanks, must be nil for regular tiles)
     public let blankLetterUsedAs: Tile.Letter?
     
+    public enum CodingKeys: String, CodingKey {
+        case tileID = "tileId"
+        case position
+        case blankLetterUsedAs
+    }
+    
     /// - Parameters:
     ///   - tileID: The ID of the tile to place
     ///   - position: The board position where to place the tile
