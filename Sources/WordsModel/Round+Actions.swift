@@ -100,7 +100,7 @@ extension Round {
         ))
         
         // Check for game end (all players passed consecutively)
-        if consecutivePasses >= Constants.endOnConsecutivePasses {
+        if consecutivePasses >= playerRacks.count * 2 {
             endGame()
             return
         }
@@ -578,7 +578,7 @@ extension Round {
         }
         
         // Game ends when tile bag is empty and all players pass
-        if tileBag.isEmpty && consecutivePasses >= Constants.endOnConsecutivePasses {
+        if tileBag.isEmpty && consecutivePasses >= playerRacks.count * 2 {
             endGame()
         }
     }
