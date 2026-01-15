@@ -44,7 +44,7 @@ public struct Round: Equatable, Codable, Sendable {
         public let timestamp: Date
         
         public enum ActionType: Equatable, Codable, Sendable {
-            case placeWord(placements: [TilePlacement], score: Int)
+            case placeWord(placements: [TilePlacement], score: Int, highestScoringWord: [TilePlacement]?)
             case pass
             case exchange(tileIDs: [TileID])
         }

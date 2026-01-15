@@ -12,6 +12,9 @@ extension Round {
         
         let result: WordPlacementResult = try await wordPlacementResult(form: form)
         
+        // Calculate highest scoring word BEFORE placing tiles (board state is correct here)
+        let highestScoringWord = highestScoringWord(from: form.placements)
+        
         // Place tiles on board
         var blankAssignments: [TileID: Tile.Letter] = [:]
         for placement in form.placements {
@@ -44,7 +47,7 @@ extension Round {
         // Log action
         log.append(.init(
             playerId: currentPlayerID,
-            action: .placeWord(placements: form.placements, score: result.points),
+            action: .placeWord(placements: form.placements, score: result.points, highestScoringWord: highestScoringWord),
             timestamp: .now
         ))
         
