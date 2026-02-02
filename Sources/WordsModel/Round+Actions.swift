@@ -368,6 +368,7 @@ extension Round {
         }
         
         // Convert each word placement array to a word string and validate
+        var invalidWords: [String] = []
         for letterPlacements in letterPlacementArrays {
             let wordString = try wordString(from: letterPlacements)
             
@@ -377,8 +378,12 @@ extension Round {
             }
             
             if await !WordDictionary.shared.isValid(wordString) {
-                throw WordPlacementError.wordNotInDictionary(word: wordString)
+                invalidWords.append(wordString)
             }
+        }
+        
+        if !invalidWords.isEmpty {
+            throw WordPlacementError.wordsNotInDictionary(words: invalidWords)
         }
     }
     

@@ -67,7 +67,7 @@ func placeFirstWord() async throws {
         try await round.placeWord(form: form)
         // If it succeeds, check that tiles were placed
         #expect(round.board[7][7] != nil)
-    } catch WordPlacementError.wordNotInDictionary {
+    } catch WordPlacementError.wordsNotInDictionary {
         // Expected - we're not validating words in this test
         #expect(true)
     } catch {

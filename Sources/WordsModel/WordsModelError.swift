@@ -19,7 +19,7 @@ public enum WordPlacementError: Error, Equatable, Sendable {
     case tilesNotPlacedConsecutively
     case invalidWordPlacement
     case invalidWordFormation
-    case wordNotInDictionary(word: String)
+    case wordsNotInDictionary(words: [String])
     case noTilePlacementsFound
     case blankTileRequiresLetter
     case nonBlankTileCannotHaveLetter
