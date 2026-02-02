@@ -37,7 +37,8 @@ extension Round {
         self.boardSquares = BoardSquare.standardBoard()
         
         // Deal tiles to players (7 tiles each)
-        var remainingTiles = allTiles.map(\.id).shuffled()
+        // When using cooked tiles, preserve the order for deterministic dealing
+        var remainingTiles = cookedTiles != nil ? allTiles.map(\.id) : allTiles.map(\.id).shuffled()
         self.playerRacks = try Self.dealTiles(
             to: playersWithColors,
             tileBag: &remainingTiles,
