@@ -29,6 +29,7 @@ public enum BoardSquare: Equatable, Codable, Sendable {
     
     public static func standardBoard() -> [[BoardSquare]] {
         // Standard Scrabble board layout (15x15)
+        // TW .. .. DL .. TL .. TW .. TL .. DL .. .. TW (and symmetric)
         var board: [[BoardSquare]] = Array(
             repeating: Array(
                 repeating: BoardSquare.empty,
@@ -37,7 +38,7 @@ public enum BoardSquare: Equatable, Codable, Sendable {
             count: 15
         )
         
-        // Triple word scores (corners and edges)
+        // Triple word scores (corners and mid-edges)
         let tripleWordPositions: [(Int, Int)] = [
             (0, 0), (0, 7), (0, 14),
             (7, 0), (7, 14),
@@ -47,11 +48,11 @@ public enum BoardSquare: Equatable, Codable, Sendable {
             board[row][col] = .tripleWord
         }
         
-        // Double word scores
+        // Double word scores (diamond/cross pattern)
         let doubleWordPositions: [(Int, Int)] = [
-            (1, 1), (1, 13), (2, 2), (2, 12), (3, 3), (3, 11),
-            (4, 4), (4, 10), (10, 4), (10, 10), (11, 3), (11, 11),
-            (12, 2), (12, 12), (13, 1), (13, 13)
+            (2, 6), (3, 6), (3, 8), (4, 5), (4, 9), (5, 4), (5, 9),
+            (6, 3), (6, 10), (7, 2), (7, 12), (8, 3), (8, 10),
+            (9, 4), (9, 9), (10, 5), (10, 9), (11, 6), (11, 8), (12, 6)
         ]
         for (row, col) in doubleWordPositions {
             board[row][col] = .doubleWord
@@ -59,8 +60,12 @@ public enum BoardSquare: Equatable, Codable, Sendable {
         
         // Triple letter scores
         let tripleLetterPositions: [(Int, Int)] = [
-            (1, 5), (1, 9), (5, 1), (5, 5), (5, 9), (5, 13),
-            (9, 1), (9, 5), (9, 9), (9, 13), (13, 5), (13, 9)
+            (0, 5), (0, 9), (1, 4), (1, 9), (2, 3), (2, 10), (3, 2), (3, 11),
+            (4, 1), (4, 7), (4, 12), (5, 0), (5, 6), (5, 8), (5, 13),
+            (6, 5), (6, 8), (7, 4), (7, 10), (8, 5), (8, 8),
+            (9, 0), (9, 6), (9, 8), (9, 13), (10, 1), (10, 7), (10, 12),
+            (11, 2), (11, 11), (12, 3), (12, 10), (13, 4), (13, 9),
+            (14, 5), (14, 9)
         ]
         for (row, col) in tripleLetterPositions {
             board[row][col] = .tripleLetter
@@ -68,10 +73,10 @@ public enum BoardSquare: Equatable, Codable, Sendable {
         
         // Double letter scores
         let doubleLetterPositions: [(Int, Int)] = [
-            (0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14),
-            (6, 2), (6, 6), (6, 8), (6, 12), (7, 3), (7, 11),
-            (8, 2), (8, 6), (8, 8), (8, 12), (11, 0), (11, 7), (11, 14),
-            (12, 6), (12, 8), (14, 3), (14, 11)
+            (0, 3), (0, 11), (1, 2), (1, 12), (2, 1), (2, 13),
+            (3, 0), (3, 7), (3, 14), (6, 6), (7, 6), (7, 8), (8, 6),
+            (11, 0), (11, 7), (11, 14), (12, 1), (12, 13), (13, 2), (13, 12),
+            (14, 3), (14, 11)
         ]
         for (row, col) in doubleLetterPositions {
             board[row][col] = .doubleLetter
