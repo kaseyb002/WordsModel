@@ -65,7 +65,14 @@ public enum BoardSquare: Equatable, Codable, Sendable {
         
         // Triple letter scores
         let tripleLetterPositions: [(Int, Int)] = [
-            (6, 0), (8, 0)
+            (0,6),(0,8),
+            (3,3),(3,11),
+            (5,5),(5,9),
+            (6,0),(6,14),
+            (8,0),(8,14),
+            (9,5),(9,9),
+            (11,3),(11,11),
+            (14,6),(14,8)
         ]
         for (row, col) in tripleLetterPositions {
             board[row][col] = .tripleLetter
