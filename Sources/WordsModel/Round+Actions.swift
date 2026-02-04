@@ -353,7 +353,7 @@ extension Round {
         
         // Bonus for using all 7 tiles
         if placements.count == 7 {
-            totalScore += 50
+            totalScore += 35
         }
         
         return totalScore
