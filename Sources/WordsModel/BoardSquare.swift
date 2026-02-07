@@ -89,7 +89,7 @@ public enum BoardSquare: Equatable, Codable, Sendable {
             (8, 4), (8, 7), (8, 10),
             (10, 2), (10, 6), (10, 8), (10, 12),
             (12, 1), (12, 4), (12, 10), (12, 13),
-            (13, 2), (13, 11),
+            (13, 2), (13, 12),
             (14, 0), (14, 14),
         ]
         for (row, col) in doubleLetterPositions {
